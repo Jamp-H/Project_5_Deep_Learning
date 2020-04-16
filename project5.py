@@ -70,12 +70,56 @@ def runNetwork(epochs, xArray, yArray, network):
 			network.evaluate(xArray["test"], yArray["test"])))
 	history.history
 
+def run_single_layered_NN(X_mat, y_vec, hidden_layers, num_epochs, data_set):
+    # set model variable to keep track on which number model is being ran
+    model_number = 1
+
+    # list of colors for hidden layers
+
+    # creat list of model data
+    model_data_list = []
+
+    # create a neural network with 1 hidden layer
+    for hidden_layer in hidden_layers:
+        # set model for single layered NN
+        model = keras.Sequential([
+        keras.layers.Flatten(input_shape=(np.size(X_mat, 1), )), # input layer
+        keras.layers.Dense(hidden_layer, activation='sigmoid', use_bias=False), # hidden layer
+        keras.layers.Dense(1, activation='sigmoid', use_bias=False) # output layer
+        ])
+
+        # compile the models
+        model.compile(optimizer='sgd',
+                      loss='binary_crossentropy',
+                      metrics=['accuracy'])
+
+        # fit the models
+        print(f"\nModel {model_number} {data_set}")
+        print("==============================================")
+        model_data = model.fit(
+                                    x=X_mat,
+                                    y=y_vec,
+                                    epochs=num_epochs,
+                                    verbose=0,
+                                    validation_split=.05)
+
+        # update model number
+        model_number += 1
+
+        # apend model data to list
+        model_data_list.append(model_data)
+
+
+
+    return model_data_list
 
 def init(data, numFolds, epochs):
 	# Get X (matrix) and Y (vec) data
 	X = getNormX(data)
 	Y = getY(data)
-
+	hidden_units_vec = range(6)
+	hidden_units_vec = np.power(hidden_units_vec, 2)
+	print(hidden_units_vec)
 	foldIDArray = np.arange(numFolds)
 	np.random.seed(0)
 	folds = np.random.permutation(np.tile(foldIDArray, len(Y))[:len(Y)])
