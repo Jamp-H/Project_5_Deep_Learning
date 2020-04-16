@@ -1,3 +1,11 @@
+###############################################################################
+#
+# AUTHOR(S): Joshua Holguin, Jacob
+# DESCRIPTION: program that will implement stochastic gradient descent algorithm
+# for a one layer neural network with edits made to the regularization parameter
+# VERSION: 0.0.1v
+#
+###############################################################################
 import tensorflow as tf
 import numpy as np
 from sklearn.preprocessing import scale
