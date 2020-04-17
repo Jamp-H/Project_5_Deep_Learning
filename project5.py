@@ -12,10 +12,6 @@ import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
 ### TODO:
-### - Add comments and function headers
-### - Edit Regularization parameters
-### - Loop over Regularization parameter(s)
-### - Plot Log loss vs regularization parameter (diff color each set)
 ### - Point to show min of each val loss curve
 ### - Get best_param_val - reg param that minimized val loss
 ### - retrain entire data set on ^^
@@ -128,7 +124,8 @@ def graph_model_data(model_data_list, num_epochs, set):
     # Add x nd y labels
     plt.xlabel('Epochs')
     plt.ylabel("Loss")
-    plt.legend()
+    plt.legend(fontsize = 'small', loc = 'upper right',
+                bbox_to_anchor = (1.05, 1.05))
 
     #display graph
     plt.savefig("Loss Graph")
