@@ -97,6 +97,7 @@ def graph_model_data(model_data_list, num_epochs, set):
     for model_data in model_data_list:
         color_index = 0
         model_index = 1
+
         for data in model_data:
             if(set[set_index] == 'Train'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
@@ -159,12 +160,22 @@ def init(data, epochs):
     # plot data
     graph_model_data(model_data_list, epochs, ["Subtrain" ,"Validation"])
 
+    best_num_epochs = []
+    # get best number of epochs besed off validation data
+    for model in model_data_valid_list:
+
+        loss_data = model.history["val_loss"]
+
+        best_num_epochs.append(loss_data.index(min(loss_data)) + 1)
+
+    print(best_num_epochs)
+
 
 
 def main():
     # get spam data
     spam = np.genfromtxt("spam.data", delimiter=" ")
 
-    init(spam, 10)
+    init(spam, 100)
 
 main()
