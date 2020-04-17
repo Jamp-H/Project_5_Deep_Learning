@@ -113,11 +113,15 @@ def graph_model_data(model_data_list, num_epochs, set):
                 plt.plot(range(0,num_epochs), data.history['val_loss'],
                                 color = colors[color_index], linestyle = line_style[set_index],
                                 label = f"Model {model_index} {set[set_index]} Data")
-
+                                
+            valMin = np.amin(data.history['val_loss'])
+            argMin = np.argmin(data.history['val_loss'])
+            plt.plot(argMin, valMin, marker='o', color = colors[color_index])
+            
             color_index += 1
-
             model_index += 1
         set_index += 1
+
     # add grid to graphs
     plt.grid(True)
 
@@ -165,6 +169,6 @@ def main():
     # get spam data
     spam = np.genfromtxt("spam.data", delimiter=" ")
 
-    init(spam, 10)
+    init(spam, 100)
 
 main()
