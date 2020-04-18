@@ -11,9 +11,9 @@ from sklearn.preprocessing import scale
 import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
-import tensorflow_docs as tfdocs
-import tensorflow_docs.modeling
-import tensorflow_docs.plots
+#import tensorflow_docs as tfdocs
+#import tensorflow_docs.modeling
+#import tensorflow_docs.plots
 ### TODO:
 ### - Get best_param_val - reg param that minimized val loss
 ### - retrain entire data set on ^^
@@ -86,47 +86,33 @@ def run_single_layered_NN(X_mat, y_vec, val_data ,hidden_layers, num_epochs, dat
 # num_epochs: total number of epoches used for the models
 # line_style: style the line should be on the output graph
 # model_data: a list of valuesdectionary or values from our single NN model
-def graph_model_data(model_data_list, num_epochs, setID):
-    colors = ['lightblue', 'darkblue', 'orange' , 'black']
+def graph_model_data(model_data_list, num_epochs):
+    colors = ['lightblue', 'darkblue', 'orange' , 'black', 'yellow']
     line_style = ['solid', 'dashed']
-
-
-
+    
+    model_index = 0
+    color_index = 0
     set_index = 0
+    
+    for data in model_data_list:
+        plt.plot(range(0,num_epochs), data.history['loss'], markevery=num_epochs,
+                        color = colors[color_index], linestyle = 'solid',
+                        label = f"Model {model_index} Subtrain Data")
+        valMin = np.amin(data.history['val_loss'])
+        argMin = np.argmin(data.history['val_loss'])
+        plt.plot(argMin, valMin, marker='o', color = colors[color_index])
+        
+        plt.plot(range(0,num_epochs), data.history['val_loss'],
+                        color = colors[color_index], linestyle = 'dashed',
+                        label = f"Model {model_index} Validation Data")
+        valMin = np.amin(data.history['val_loss'])
+        argMin = np.argmin(data.history['val_loss'])
+        plt.plot(argMin, valMin, marker='o', color = colors[color_index])
 
-
-    for model_data in model_data_list:
-        color_index = 0
-        model_index = 1
-
-        for data in model_data:
-            if(setID[set_index] == 'Train'):
-                plt.plot(range(0,num_epochs), data.history['loss'], markevery=num_epochs,
-                                color = colors[color_index], linestyle = 'solid',
-                                label = f"Model {model_index} Train Data")
-                valMin = np.amin(data.history['loss'])
-                argMin = np.argmin(data.history['loss'])
-
-            if(setID[set_index] == 'Subtrain'):
-                plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
-                                color = colors[color_index], linestyle = 'solid',
-                                label = f"Model {model_index} Subtrain Data")
-                valMin = np.amin(data.history['val_loss'])
-                argMin = np.argmin(data.history['val_loss'])
-
-
-            if(setID[set_index] == 'Validation'):
-                plt.plot(range(0,num_epochs), data.history['val_loss'],
-                                color = colors[color_index], linestyle = 'dashed',
-                                label = f"Model {model_index} Validation Data")
-                valMin = np.amin(data.history['val_loss'])
-                argMin = np.argmin(data.history['val_loss'])
-
-            plt.plot(argMin, valMin, marker='o', color = colors[color_index])
-
-            color_index += 1
-            model_index += 1
-        set_index += 1
+        color_index += 1
+        model_index += 1
+        
+    set_index += 1
 
     # add grid to graphs
     plt.grid(True)
@@ -139,11 +125,12 @@ def graph_model_data(model_data_list, num_epochs, setID):
 
     #display graph
     plt.savefig("Loss Graph")
-
+    plt.clf()
 
 def init(data, epochs):
+    np.random.seed(5)
     # Get X (matrix) and y (vec) data
-    X_sc = getNormX(data)
+    X_sc = np.random.permutation(getNormX(data))
     y_vec = getY(data)
     # make array or hidden units
     hidden_units_vec = 2 ** np.arange(4)
@@ -156,7 +143,6 @@ def init(data, epochs):
     X_subtrain, X_validation = np.split( X_train, [int(.5 * len(X_train))])
     y_subtrain, y_validation = np.split( y_train, [int(.5 * len(y_train))])
     val_data = (X_validation,y_validation)
-    np.random.seed(5)
 
     model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain, val_data,
                                     hidden_units_vec, epochs, "Subtrain")
@@ -169,21 +155,28 @@ def init(data, epochs):
     print(model_data_subtrain_list[0].history.keys())
 
 
+    graph_model_data(model_data_subtrain_list, epochs)
 
 
 
-
-    best_num_epochs = []
+    best_num_units = []
     # get best number of epochs besed off validation data
     for model in model_data_subtrain_list:
-
-        loss_data = model.history["val_loss"]
-
-        best_num_epochs.append(loss_data.index(min(loss_data)) + 1)
-
+        best_num_units.append(np.amin(model.history['val_loss']))
+    print("loss", best_num_units)
+    print("2 pow", hidden_units_vec)
     # Retrain whole train data based of best num of epochs
-    #model_data_train_list = run_single_layered_NN(X_train, y_train,
-    #                                        hidden_units_vec, best_num_epochs, "Train")
+    plt.plot(hidden_units_vec, best_num_units)
+    valMin = np.amin(best_num_units)
+    argMin = np.argmin(best_num_units)
+    plt.plot(argMin,valMin,marker="o")
+                
+    plt.xlabel('Number Of Units in Hidden Layer')
+    plt.ylabel("Loss")
+
+    #display graph
+    plt.savefig("Units Graph")
+
 
 def main():
     # get spam data
