@@ -96,27 +96,28 @@ def graph_model_data(model_data_list, num_epochs, set):
     for model_data in model_data_list:
         color_index = 0
         model_index = 1
+
         for data in model_data:
             if(set[set_index] == 'Train'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
-                                color = colors[color_index], linestyle = line_style[set_index],
-                                label = f"Model {model_index} {set[set_index]} Data")
+                                color = colors[color_index], linestyle = 'solid',
+                                label = f"Model {model_index} Train Data")
 
             if(set[set_index] == 'Subtrain'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
-                                color = colors[color_index], linestyle = line_style[set_index],
-                                label = f"Model {model_index} {set[set_index]} Data")
+                                color = colors[color_index], linestyle = 'solid',
+                                label = f"Model {model_index} Subtrain Data")
 
 
             if(set[set_index] == 'Validation'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'],
-                                color = colors[color_index], linestyle = line_style[set_index],
-                                label = f"Model {model_index} {set[set_index]} Data")
-                                
+                                color = colors[color_index], linestyle = 'dashed',
+                                label = f"Model {model_index} Validation Data")
+
             valMin = np.amin(data.history['val_loss'])
             argMin = np.argmin(data.history['val_loss'])
             plt.plot(argMin, valMin, marker='o', color = colors[color_index])
-            
+
             color_index += 1
             model_index += 1
         set_index += 1
@@ -149,13 +150,13 @@ def init(data, epochs):
     X_subtrain, X_validation = np.split( X_train, [int(.5 * len(X_train))])
     y_subtrain, y_validation = np.split( y_train, [int(.5 * len(y_train))])
 
-    np.random.seed(0)
-
-    model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain,
-                                    hidden_units_vec, epochs, "Subtrain")
+    np.random.seed(5)
 
     model_data_valid_list = run_single_layered_NN(X_validation, y_validation,
                                     hidden_units_vec, epochs, "Validataion")
+
+    model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain,
+                                    hidden_units_vec, epochs, "Subtrain")
 
     model_data_list = [model_data_subtrain_list, model_data_valid_list]
 
@@ -163,6 +164,17 @@ def init(data, epochs):
     graph_model_data(model_data_list, epochs, ["Subtrain" ,"Validation"])
 
 
+    best_num_epochs = []
+    # get best number of epochs besed off validation data
+    for model in model_data_valid_list:
+
+        loss_data = model.history["val_loss"]
+
+        best_num_epochs.append(loss_data.index(min(loss_data)) + 1)
+
+    # Retrain whole train data based of best num of epochs
+    model_data_train_list = run_single_layered_NN(X_train, y_train,
+                                            hidden_units_vec, best_num_epochs, "Train")
 
 def main():
     # get spam data
