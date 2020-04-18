@@ -164,7 +164,7 @@ def init(data, epochs):
     # plot data
     graph_model_data(model_data_list, epochs, ["Subtrain" ,"Validation"])
 
-
+ 
     best_num_epochs = []
     # get best number of epochs besed off validation data
     for model in model_data_valid_list:
