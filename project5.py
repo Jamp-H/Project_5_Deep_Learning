@@ -83,8 +83,7 @@ def run_single_layered_NN(X_mat, y_vec, hidden_layers, num_epochs, data_set):
 # num_epochs: total number of epoches used for the models
 # line_style: style the line should be on the output graph
 # model_data: a list of valuesdectionary or values from our single NN model
-def graph_model_data(model_data_list, num_epochs, set):
-
+def graph_model_data(model_data_list, num_epochs, setID):
     colors = ['lightblue', 'darkblue', 'orange' , 'black']
     line_style = ['solid', 'dashed']
 
@@ -96,26 +95,30 @@ def graph_model_data(model_data_list, num_epochs, set):
     for model_data in model_data_list:
         color_index = 0
         model_index = 1
-
+        
         for data in model_data:
-            if(set[set_index] == 'Train'):
-                plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
+            if(setID[set_index] == 'Train'):
+                plt.plot(range(0,num_epochs), data.history['loss'], markevery=num_epochs,
                                 color = colors[color_index], linestyle = 'solid',
                                 label = f"Model {model_index} Train Data")
+                valMin = np.amin(data.history['loss'])
+                argMin = np.argmin(data.history['loss'])
 
-            if(set[set_index] == 'Subtrain'):
+            if(setID[set_index] == 'Subtrain'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
                                 color = colors[color_index], linestyle = 'solid',
                                 label = f"Model {model_index} Subtrain Data")
+                valMin = np.amin(data.history['val_loss'])
+                argMin = np.argmin(data.history['val_loss'])
 
 
-            if(set[set_index] == 'Validation'):
+            if(setID[set_index] == 'Validation'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'],
                                 color = colors[color_index], linestyle = 'dashed',
                                 label = f"Model {model_index} Validation Data")
+                valMin = np.amin(data.history['val_loss'])
+                argMin = np.argmin(data.history['val_loss'])
 
-            valMin = np.amin(data.history['val_loss'])
-            argMin = np.argmin(data.history['val_loss'])
             plt.plot(argMin, valMin, marker='o', color = colors[color_index])
 
             color_index += 1
@@ -158,10 +161,11 @@ def init(data, epochs):
     model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain,
                                     hidden_units_vec, epochs, "Subtrain")
 
+
     model_data_list = [model_data_subtrain_list, model_data_valid_list]
 
     # plot data
-    graph_model_data(model_data_list, epochs, ["Subtrain" ,"Validation"])
+    graph_model_data(model_data_list, epochs, ["Validation" ,"Subtrain"])
 
 
     best_num_epochs = []
@@ -180,6 +184,6 @@ def main():
     # get spam data
     spam = np.genfromtxt("spam.data", delimiter=" ")
 
-    init(spam, 100)
+    init(spam, 40)
 
 main()
