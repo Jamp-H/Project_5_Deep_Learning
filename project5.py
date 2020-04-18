@@ -65,7 +65,7 @@ def run_single_layered_NN(X_mat, y_vec, hidden_layers, num_epochs, data_set):
                                     y=y_vec,
                                     epochs=num_epochs,
                                     verbose=0,
-                                    validation_split=.005)
+                                    validation_split=.05)
 
         # update model number
         model_number += 1
@@ -102,18 +102,18 @@ def graph_model_data(model_data_list, num_epochs, set):
             if(set[set_index] == 'Train'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
                                 color = colors[color_index], linestyle = 'solid',
-                                label = f"Model {model_index} {set[set_index]} Data")
+                                label = f"Model {model_index} Train Data")
 
             if(set[set_index] == 'Subtrain'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'], markevery=num_epochs,
                                 color = colors[color_index], linestyle = 'solid',
-                                label = f"Model {model_index} {set[set_index]} Data")
+                                label = f"Model {model_index} Subtrain Data")
 
 
             if(set[set_index] == 'Validation'):
                 plt.plot(range(0,num_epochs), data.history['val_loss'],
                                 color = colors[color_index], linestyle = 'dashed',
-                                label = f"Model {model_index} {set[set_index]} Data")
+                                label = f"Model {model_index} Validation Data")
 
             valMin = np.amin(data.history['val_loss'])
             argMin = np.argmin(data.history['val_loss'])
@@ -153,16 +153,17 @@ def init(data, epochs):
 
     np.random.seed(5)
 
-    model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain,
-                                    hidden_units_vec, epochs, "Subtrain")
-
     model_data_valid_list = run_single_layered_NN(X_validation, y_validation,
                                     hidden_units_vec, epochs, "Validataion")
+
+    model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain,
+                                    hidden_units_vec, epochs, "Subtrain")
 
     model_data_list = [model_data_subtrain_list, model_data_valid_list]
 
     # plot data
     graph_model_data(model_data_list, epochs, ["Subtrain" ,"Validation"])
+
 
     best_num_epochs = []
     # get best number of epochs besed off validation data
@@ -172,6 +173,9 @@ def init(data, epochs):
 
         best_num_epochs.append(loss_data.index(min(loss_data)) + 1)
 
+    # Retrain whole train data based of best num of epochs
+    model_data_train_list = run_single_layered_NN(X_train, y_train,
+                                            hidden_units_vec, best_num_epochs, "Train")
 
 def main():
     # get spam data
