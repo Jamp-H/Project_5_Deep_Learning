@@ -12,7 +12,6 @@ import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
 ### TODO:
-### - Point to show min of each val loss curve
 ### - Get best_param_val - reg param that minimized val loss
 ### - retrain entire data set on ^^
 ### - Make pred on test set
