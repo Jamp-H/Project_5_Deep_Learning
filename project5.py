@@ -11,6 +11,9 @@ from sklearn.preprocessing import scale
 import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as plt
+import tensorflow_docs as tfdocs
+import tensorflow_docs.modeling
+import tensorflow_docs.plots
 ### TODO:
 ### - Get best_param_val - reg param that minimized val loss
 ### - retrain entire data set on ^^
@@ -35,7 +38,7 @@ def getY(data):
 # num_epochs - integer value for the number of epochs wanted
 # data_set - string value decribing the data set being ran (Test, Train, Subtrain, ect.)
 # Return: array of history objects containing data about the models created
-def run_single_layered_NN(X_mat, y_vec, hidden_layers, num_epochs, data_set):
+def run_single_layered_NN(X_mat, y_vec, val_data ,hidden_layers, num_epochs, data_set):
     # set model variable to keep track on which number model is being ran
     model_number = 1
 
@@ -63,8 +66,8 @@ def run_single_layered_NN(X_mat, y_vec, hidden_layers, num_epochs, data_set):
                                     x=X_mat,
                                     y=y_vec,
                                     epochs=num_epochs,
-                                    verbose=0,
-                                    validation_split=.05)
+                                    validation_data = val_data,
+                                    verbose=0,)
 
         # update model number
         model_number += 1
@@ -95,7 +98,7 @@ def graph_model_data(model_data_list, num_epochs, setID):
     for model_data in model_data_list:
         color_index = 0
         model_index = 1
-        
+
         for data in model_data:
             if(setID[set_index] == 'Train'):
                 plt.plot(range(0,num_epochs), data.history['loss'], markevery=num_epochs,
@@ -152,33 +155,35 @@ def init(data, epochs):
     # split train data into 50% subtrain and 50% validation
     X_subtrain, X_validation = np.split( X_train, [int(.5 * len(X_train))])
     y_subtrain, y_validation = np.split( y_train, [int(.5 * len(y_train))])
-
+    val_data = (X_validation,y_validation)
     np.random.seed(5)
 
-    model_data_valid_list = run_single_layered_NN(X_validation, y_validation,
-                                    hidden_units_vec, epochs, "Validataion")
-
-    model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain,
+    model_data_subtrain_list = run_single_layered_NN(X_subtrain, y_subtrain, val_data,
                                     hidden_units_vec, epochs, "Subtrain")
 
 
-    model_data_list = [model_data_subtrain_list, model_data_valid_list]
+    model_data_list = [model_data_subtrain_list]
+
 
     # plot data
-    graph_model_data(model_data_list, epochs, ["Validation" ,"Subtrain"])
+    print(model_data_subtrain_list[0].history.keys())
+
+
+
+
 
 
     best_num_epochs = []
     # get best number of epochs besed off validation data
-    for model in model_data_valid_list:
+    for model in model_data_subtrain_list:
 
         loss_data = model.history["val_loss"]
 
         best_num_epochs.append(loss_data.index(min(loss_data)) + 1)
 
     # Retrain whole train data based of best num of epochs
-    model_data_train_list = run_single_layered_NN(X_train, y_train,
-                                            hidden_units_vec, best_num_epochs, "Train")
+    #model_data_train_list = run_single_layered_NN(X_train, y_train,
+    #                                        hidden_units_vec, best_num_epochs, "Train")
 
 def main():
     # get spam data
